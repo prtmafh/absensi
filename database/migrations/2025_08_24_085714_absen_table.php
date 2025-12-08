@@ -18,9 +18,9 @@ return new class extends Migration
             $table->time('jam_masuk')->nullable();
             $table->time('jam_pulang')->nullable();
             $table->enum('status', ['hadir', 'izin', 'tidak hadir', 'terlambat'])->default('hadir');
-            $table->decimal('latitude', 10, 7)->nullable();   // contoh: -6.2345678
-            $table->decimal('longitude', 10, 7)->nullable();  // contoh: 106.9876543
-            $table->string('foto')->nullable(); // simpan path file foto di storage
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->string('foto')->nullable();
             $table->timestamps();
 
             $table->foreign('karyawan_id')->references('id_karyawan')->on('karyawan')->onDelete('cascade');

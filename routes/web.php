@@ -7,6 +7,7 @@ use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\GajiController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\PengaturanController;
+use App\Http\Controllers\RekapTahunanController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +64,8 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::delete('/admin/jenis_gaji/{id}', [GajiController::class, 'deleteJenisGaji'])->name('jenis_gaji.destroy');
 
     Route::get('/admin/absensi', [AbsensiController::class, 'DataAbsen'])->name('data_absen');
+    Route::get('/admin/rekap-tahunan', [RekapTahunanController::class, 'index'])->name('rekap.tahunan');
+    Route::get('/admin/rekap-tahunan/{karyawan}', [RekapTahunanController::class, 'show'])->name('rekap.tahunan.show');
 
     Route::get('/admin/lembur', [AbsensiController::class, 'Lembur'])->name('data_lembur');
     Route::put('/admin/lembur/{id}/approve', [AbsensiController::class, 'approve'])->name('admin.lembur.approve');
