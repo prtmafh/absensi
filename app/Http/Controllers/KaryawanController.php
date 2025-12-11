@@ -8,13 +8,24 @@ use App\Models\Izin;
 use App\Models\Karyawan;
 use App\Models\Lembur;
 use App\Models\Pengaturan;
+use App\Models\User;
 use App\Services\PayrollService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AttendanceService;
+use Illuminate\Support\Facades\Storage;
 
 class KaryawanController extends Controller
 {
+    protected $attendanceService;
+
+    public function __construct(AttendanceService $attendanceService)
+    {
+        $this->attendanceService = $attendanceService;
+    }
+
+
     public function index()
     {
         $user = Auth::user();
@@ -197,5 +208,68 @@ class KaryawanController extends Controller
 
             return redirect()->back()->with('success', 'Pengajuan izin berhasil dikirim dan menunggu persetujuan.');
         }
+    }
+
+    public function profile(Request $request)
+    {
+        $user = Auth::user();
+        $karyawan_id = $user->karyawan_id;
+        $karyawan = Karyawan::with(['jabatan'])->where('id_karyawan', $karyawan_id)->first();
+        $tahun = (int) $request->input('tahun', Carbon::now()->year);
+        $detail = $this->attendanceService->getYearlyRecapForKaryawan($tahun, $karyawan->id_karyawan);
+
+        return view('karyawan.profile.index', compact('karyawan', 'detail'));
+    }
+    public function updateProfile(Request $request, $karyawan_id)
+    {
+        // Cari user berdasarkan karyawan_id
+        $user = User::where('karyawan_id', $karyawan_id)->firstOrFail();
+
+        // Validasi input
+        $validated = $request->validate([
+            'username'   => 'required|string|max:50|unique:users,username,' . $user->id_user . ',id_user',
+            'password'   => 'nullable|string|min:6',
+        ]);
+
+        // Update field
+        $user->username  = $validated['username'];
+
+        // Password hanya diubah kalau diisi
+        if (!empty($validated['password'])) {
+            $user->password = bcrypt($validated['password']);
+        }
+
+        $user->save();
+
+        // 🔐 Login ulang dengan data terbaru
+        Auth::login($user);
+
+        // 🔄 Regenerate session biar token & session fresh
+        $request->session()->regenerate();
+
+        return back()->with('success', 'Data berhasil diperbarui.');
+    }
+
+    public function updateFoto(Request $request)
+    {
+        $user = Auth::user();
+        $karyawan = $user->karyawan; // pastikan relasi di model User: user()->belongsTo(Karyawan::class,'karyawan_id','id_karyawan')
+
+        $request->validate([
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // Hapus foto lama jika ada
+        if ($karyawan->foto && Storage::disk('public')->exists($karyawan->foto)) {
+            Storage::disk('public')->delete($karyawan->foto);
+        }
+
+        // Simpan foto baru
+        $path = $request->file('foto')->store('foto_karyawan', 'public'); // folder: storage/app/public/karyawan
+
+        $karyawan->foto = $path;
+        $karyawan->save();
+
+        return back()->with('success', 'Foto profil berhasil diperbarui.');
     }
 }

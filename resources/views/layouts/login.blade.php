@@ -149,15 +149,21 @@ License: For each use you must have a valid license purchased only from above li
     <!--end::Global Javascript Bundle-->
     <!--begin::Page Custom Javascript(used by this page)-->
     <script src="{{asset('metronic')}}/assets/js/custom/authentication/sign-in/general.js"></script>
+
     @if(session('success'))
     <script>
         Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: '{{ session('success') }}',
-                    showConfirmButton: true,
-                    // timer: 2000
-                });
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 2000,
+            confirmButtonText: 'OK',
+            customClass: {
+                confirmButton: 'btn btn-primary' // 🔵 gunakan tombol biru bawaan Metronic
+            },  
+            buttonsStyling: false // ⛔️ supaya SweetAlert tidak override style Bootstrap
+        });
     </script>
     @endif
     @if ($errors->any())

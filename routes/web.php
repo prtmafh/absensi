@@ -101,4 +101,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/karyawan/izin', [KaryawanController::class, 'izinKaryawan'])->name('izin.karyawan');
     Route::post('/izin', [KaryawanController::class, 'storeIzin'])->name('izin.store');
+
+    Route::get('/karyawan/profile', [KaryawanController::class, 'profile'])->name('karyawan.profile');
+    Route::put('/karyawan/profile/{id_karyawan}', [KaryawanController::class, 'updateProfile'])->name('karyawan.profile.update');
+    Route::post('/karyawan/profile/update-foto', [KaryawanController::class, 'updateFoto'])->name('karyawan.profile.update-foto');
 });
