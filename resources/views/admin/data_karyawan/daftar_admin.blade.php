@@ -33,7 +33,7 @@
                 <div class="card-body py-3">
                     <div class="table-responsive">
                         <table id="kt_datatable_example_1"
-                            class="table table-row-dashed table-row-gray-300 align-middle   g-4">
+                            class="table table-row-dashed table-row-gray-300 align-middle g-4">
                             <thead class="">
                                 <tr class="fw-bolder text-muted bg-light">
                                     <th>No.</th>

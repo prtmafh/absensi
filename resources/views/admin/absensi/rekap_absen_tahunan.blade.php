@@ -28,39 +28,25 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table align-middle table-row-dashed fs-6 gy-3">
+                        <table id="kt_datatable_example_1"
+                            class="table table-row-dashed table-row-gray-300 align-middle   g-4">
                             <thead>
-                                <tr class="fw-bold text-muted text-center">
-                                    <th class="min-w-50px">No</th>
+                                <tr class="fw-bolder text-muted bg-light">
+                                    <th class="">No</th>
                                     <th class="min-w-200px text-start">Nama Karyawan</th>
-                                    <th class="min-w-80px">Total Hari</th>
-                                    <th class="min-w-80px">Hari Hadir</th>
-                                    <th class="min-w-100px">Hari Tidak Hadir</th>
-                                    <th class="min-w-200px">Persentase</th>
-                                    <th class="min-w-80px">Aksi</th>
+                                    <th class="min-w-200px">Persentase Kehadiran</th>
+                                    <th class="min-w-80px text-end">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($rekap as $index => $row)
                                 <tr>
-                                    <td class="text-center">
+                                    <td class="">
                                         {{ $index + 1 }}
                                     </td>
 
-                                    <td class="fw-semibold text-start">
+                                    <td class="fw-semibold text-start text-capitalize">
                                         {{ $row['nama'] }}
-                                    </td>
-
-                                    <td class="text-center">
-                                        {{ $row['total_hari'] }} / {{ $row['total_hari_tahun']}}
-                                    </td>
-
-                                    <td class="text-center text-success fw-bold">
-                                        {{ $row['hari_hadir'] }}
-                                    </td>
-
-                                    <td class="text-center text-danger fw-bold">
-                                        {{ $row['hari_tidak_hadir'] }}
                                     </td>
 
                                     <td>
@@ -70,9 +56,9 @@
                                                     {{ $row['persentase'] }}%
                                                 </span>
                                             </div>
-                                            <div class="progress h-6px w-100" style="max-width: 220px;">
-                                                <div class="progress-bar bg-success" role="progressbar"
-                                                    style="width: {{ $row['persentase'] }}%;"
+                                            <div class="progress h-6px w-100" style="max-width: 300px;">
+                                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" style="width: {{ $row['persentase'] }}%;"
                                                     aria-valuenow="{{ $row['persentase'] }}" aria-valuemin="0"
                                                     aria-valuemax="100">
                                                 </div>
@@ -80,7 +66,7 @@
                                         </div>
                                     </td>
 
-                                    <td class="text-center">
+                                    <td class="text-end">
                                         <a href="{{ route('rekap.tahunan.show', $row['karyawan_id']) }}?tahun={{ $tahun }}"
                                             class="btn btn-sm btn-light-primary">
                                             Detail
@@ -96,14 +82,6 @@
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
-
-                    <div class="text-muted mt-4 fs-7">
-                        <strong>Keterangan:</strong> Persentase dihitung dari
-                        <span class="fw-semibold">jumlah hari hadir (status: hadir &amp; terlambat)</span>
-                        dibagi <span class="fw-semibold">total hari dalam 1 tahun ({{ $tahun }})</span>,
-                        termasuk Sabtu, Minggu, dan hari libur nasional. Hari tanpa absen masuk
-                        (izin, tidak hadir, tidak absen, libur) tetap mengurangi persentase.
                     </div>
                 </div>
             </div>

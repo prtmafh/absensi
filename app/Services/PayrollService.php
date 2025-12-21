@@ -127,6 +127,7 @@ class PayrollService
             $potonganHari = 0;
         } else {
             $upahDasar = $upah;
+            // $hariPotong =  ($this->deductIzin() ? $totalIzin : 0);
             $hariPotong = $totalAlpha + ($this->deductIzin() ? $totalIzin : 0);
             $potonganHari = $rateHarian * $hariPotong;
         }

@@ -24,6 +24,7 @@ class AbsensiController extends Controller
     public function Lembur()
     {
         $lembur = Lembur::with(['karyawan'])->orderBy('tanggal', 'desc')->get();
+        $user = Auth::user();
 
         return view('admin.absensi.data_lembur', compact('lembur', 'user'));
     }

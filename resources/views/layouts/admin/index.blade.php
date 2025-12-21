@@ -42,6 +42,7 @@ License: For each use you must have a valid license purchased only from above li
         type="text/css" />
     <link href="{{ asset('metronic/assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
     <!--end::Global Stylesheets Bundle-->
     @stack('styles')
 </head>
@@ -84,6 +85,7 @@ License: For each use you must have a valid license purchased only from above li
     <script src="{{ asset('metronic/assets/plugins/global/plugins.bundle.js') }}"></script>
     <script src="{{ asset('metronic/assets/js/scripts.bundle.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> --}}
     <!--end::Global Javascript Bundle-->
 
     <!--begin::Custom Datatable Bundle-->

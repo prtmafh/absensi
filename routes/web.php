@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\GajiController;
 use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\LiburController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\RekapTahunanController;
 use Illuminate\Support\Facades\Artisan;
@@ -35,6 +36,14 @@ Route::middleware('auth', 'admin')->group(function () {
 
         return response()->json(['status' => 'success', 'message' => 'Data absensi berhasil diperbarui.']);
     })->name('run.mark.absent');
+
+    Route::get('admin/libur-nasional', [LiburController::class, 'index'])->name('admin.libur-nasional.index');
+
+    // API kecil untuk halaman kalender
+    Route::get('admin/libur-nasional/data', [LiburController::class, 'data'])->name('admin.libur-nasional.data');
+    Route::post('admin/libur-nasional', [LiburController::class, 'storeAjax'])->name('admin.libur-nasional.storeAjax');
+    Route::put('admin/libur-nasional/{liburNasional}', [LiburController::class, 'updateAjax'])->name('admin.libur-nasional.updateAjax');
+    Route::delete('admin/libur-nasional/{liburNasional}', [LiburController::class, 'destroyAjax'])->name('admin.libur-nasional.destroyAjax');
 
     // Route::get('/', [DashboardAdminController::class, 'index'])->name('dashboard');
     Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard');
@@ -78,6 +87,8 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::get('/admin/gaji', [GajiController::class, 'Gaji'])->name('gaji');
     Route::post('/generate/gaji', [GajiController::class, 'generate'])->name('gaji.generate');
     Route::get('/preview/gaji/{id_gaji}', [GajiController::class, 'preview'])->name('gaji.preview');
+    Route::get('/gaji/{id_gaji}/pdf', [GajiController::class, 'pdfSlip'])->name('gaji.pdf');
+
 
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
     Route::put('/pengaturan/mass-update', [PengaturanController::class, 'massUpdate'])->name('pengaturan.massUpdate');

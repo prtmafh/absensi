@@ -158,7 +158,7 @@
                                             <!--begin::Number-->
                                             <div class="d-flex align-items-center">
                                                 <div class="fs-2 fw-bolder text-danger" data-kt-countup="true"
-                                                    data-kt-countup-value="{{ $detail['hari_tidak_hadir'] }}">0
+                                                    data-kt-countup-value="{{ $detail['total_tidak_hadir_status'] }}">0
                                                 </div>
                                             </div>
                                             <!--end::Number-->

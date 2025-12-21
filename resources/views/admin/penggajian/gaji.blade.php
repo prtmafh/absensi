@@ -78,6 +78,19 @@
                                                     </svg>
                                                 </span>
                                             </a>
+                                            <a href="{{ route('gaji.pdf', $g->id_gaji) }}" target="_blank"
+                                                class="btn btn-icon btn-bg-light btn-active-color-success btn-sm"
+                                                title="Cetak Slip Gaji">
+                                                <span class="svg-icon svg-icon-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                        fill="none">
+                                                        <path opacity="0.3" d="M6 9V2H18V9H6Z" fill="currentColor" />
+                                                        <path
+                                                            d="M6 18H18V22H6V18ZM4 10H20C21.1 10 22 10.9 22 12V17C22 18.1 21.1 19 20 19H18V14H6V19H4C2.9 19 2 18.1 2 17V12C2 10.9 2.9 10 4 10Z"
+                                                            fill="currentColor" />
+                                                    </svg>
+                                                </span>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -212,10 +225,12 @@
                                 </table>
                             </div>
                         </div>
-                        <div class="modal-footer">
+                        {{-- <div class="modal-footer">
                             <button class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
-                            <button id="btnPrintSlip" class="btn btn-success">Cetak Slip</button>
-                        </div>
+                            <a id="btnPrintSlip" href="#" target="_blank" class="btn btn-success">
+                                Cetak Slip
+                            </a>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -268,8 +283,6 @@
 });
 </script>
 <script>
-    document.getElementById('btnPrintSlip').addEventListener('click', () => {
-window.print();
-});
+    btnPrint.href = `/gaji/${id}/pdf`;
 </script>
 @endpush

@@ -17,6 +17,10 @@ class Izin extends Model
         'lampiran',
         'status',
     ];
+    protected $casts = [
+        'tanggal_izin' => 'date',
+    ];
+
 
     public function karyawan()
     {
