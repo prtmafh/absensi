@@ -15,6 +15,121 @@
     .leaflet-container:active {
         cursor: grabbing;
     }
+
+    /* Container foto */
+    .foto-preview-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    /* Styling foto */
+    .foto-absen-img {
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        max-height: 70vh;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        background-color: #f3f4f6;
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Mobile - Full screen */
+    @media (max-width: 576px) {
+        .foto-absen-img {
+            max-height: 60vh;
+            border-radius: 8px;
+        }
+
+        /* Modal full screen di mobile */
+        #kt_modal_lihat_foto .modal-dialog {
+            margin: 0;
+            max-width: 100%;
+        }
+
+        #kt_modal_lihat_foto .modal-content {
+            border-radius: 0;
+            height: 100vh;
+        }
+
+        #kt_modal_lihat_foto .modal-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .btn-tutup-foto {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 1rem;
+        }
+    }
+
+    /* Tablet */
+    @media (min-width: 577px) and (max-width: 768px) {
+        .foto-absen-img {
+            max-height: 65vh;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 769px) {
+        .foto-absen-img {
+            max-height: 70vh;
+            max-width: 600px;
+        }
+    }
+
+    /* Landscape mode di HP */
+    @media (max-width: 768px) and (orientation: landscape) {
+        .foto-absen-img {
+            max-height: 75vh;
+        }
+    }
+
+    /* Loading state */
+    .foto-preview-container.loading {
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .foto-preview-container.loading::before {
+        content: "Memuat foto...";
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    /* Hover effect untuk foto (hanya desktop) */
+    @media (min-width: 769px) {
+        .foto-absen-img:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+    }
+
+    /* Foto tidak tersedia */
+    .foto-tidak-tersedia {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: #6b7280;
+        background-color: #f3f4f6;
+        border-radius: 10px;
+    }
+
+    .foto-tidak-tersedia svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
 </style>
 @endpush
 
@@ -136,7 +251,7 @@
 
             <!-- Letakkan modal ini di luar loop foreach karyawan -->
             <div class="modal fade" id="kt_modal_lihat_foto" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered mw-650px">
+                <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down mw-650px">
                     <div class="modal-content rounded">
                         <div class="modal-header pb-0 border-0 justify-content-end">
                             <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
@@ -152,45 +267,27 @@
                             </div>
                         </div>
 
-                        <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                        <div class="modal-body scroll-y px-4 px-sm-10 px-lg-15 pt-0 pb-4 pb-sm-15">
                             <form id="kt_modal_edit_karyawan_form" class="form" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
                                 @method('PUT')
 
-                                <div class="mb-13 text-center">
-                                    <h1 class="mb-3">Foto Absen</h1>
+                                <div class="mb-5 mb-sm-13 text-center">
+                                    <h1 class="mb-3" style="font-size: clamp(1.25rem, 5vw, 1.75rem);">Foto Absen</h1>
                                 </div>
 
-                                <!-- Foto -->
-                                <div class="d-flex flex-column mb-8 fv-row">
-                                    {{-- <label class="fs-6 fw-bold mb-2">Foto</label> --}}
-
-                                    <div id="foto_preview" class="mt-3 text-center" style="display:none;">
-                                        <div style="
-                                            display: flex;
-                                            justify-content: center;
-                                            align-items: center;
-                                            max-height: 70vh;
-                                            overflow: hidden;
-                                        ">
-                                            <img src="" alt="Foto Absen" style="
-                                                    max-width: 100%;
-                                                    max-height: 70vh;
-                                                    width: auto;
-                                                    height: auto;
-                                                    object-fit: contain;
-                                                    border-radius: 10px;
-                                                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                                                    background-color: #f3f4f6;
-                                                ">
-                                        </div>
+                                <!-- Foto Container -->
+                                <div class="d-flex flex-column mb-4 mb-sm-8 fv-row">
+                                    <div id="foto_preview" class="mt-3 text-center foto-preview-container"
+                                        style="display:none;">
+                                        <img src="" alt="Foto Absen" class="foto-absen-img">
                                     </div>
                                 </div>
 
                                 <!-- Tombol -->
                                 <div class="text-center">
-                                    <button type="button" class="btn btn-light me-3"
+                                    <button type="button" class="btn btn-light me-3 btn-tutup-foto"
                                         data-bs-dismiss="modal">Tutup</button>
                                 </div>
                             </form>
@@ -241,23 +338,89 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     const editModal = document.getElementById('kt_modal_lihat_foto');
+    let isZoomed = false;
     
     editModal.addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
         
-        // Get ID from button
+        // Get data from button
         const id = button.getAttribute('data-id');
-        
-        // Handle photo preview
         const fotoUrl = button.getAttribute('data-foto');
+        
+        // Get elements
         const fotoPreview = document.getElementById('foto_preview');
-        console.log('Preview element:', fotoPreview);
-        if (fotoUrl) {
+        const imgElement = fotoPreview.querySelector('img');
+        
+        // Reset zoom state
+        isZoomed = false;
+        
+        // Handle photo display
+        if (fotoUrl && fotoUrl.trim() !== '') {
+            // Show loading state
+            fotoPreview.classList.add('loading');
             fotoPreview.style.display = 'block';
-            fotoPreview.querySelector('img').src = fotoUrl;
+            fotoPreview.innerHTML = '<img src="" alt="Foto Absen" class="foto-absen-img">';
+            
+            const newImg = fotoPreview.querySelector('img');
+            
+            // Set foto source
+            newImg.src = fotoUrl;
+            newImg.alt = 'Foto Absen';
+            
+            // Remove loading class setelah foto dimuat
+            newImg.onload = function() {
+                fotoPreview.classList.remove('loading');
+            };
+            
+            newImg.onerror = function() {
+                fotoPreview.classList.remove('loading');
+                fotoPreview.innerHTML = `
+                    <div class="foto-tidak-tersedia">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="mb-0">Foto tidak dapat dimuat</p>
+                    </div>
+                `;
+            };
         } else {
-            fotoPreview.style.display = 'none';
+            // Foto tidak tersedia
+            fotoPreview.style.display = 'block';
+            fotoPreview.classList.remove('loading');
+            fotoPreview.innerHTML = `
+                <div class="foto-tidak-tersedia">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p class="mb-0">Foto tidak tersedia</p>
+                </div>
+            `;
         }
+    });
+    
+    // Zoom feature untuk desktop (click to zoom)
+    editModal.addEventListener('click', function(e) {
+        if (e.target.classList.contains('foto-absen-img') && window.innerWidth > 768) {
+            const img = e.target;
+            if (!isZoomed) {
+                img.style.transform = 'scale(1.5)';
+                img.style.cursor = 'zoom-out';
+                img.style.transition = 'transform 0.3s ease';
+                isZoomed = true;
+            } else {
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
+                isZoomed = false;
+            }
+        }
+    });
+    
+    // Reset zoom saat modal ditutup
+    editModal.addEventListener('hidden.bs.modal', function() {
+        isZoomed = false;
+        const fotoPreview = document.getElementById('foto_preview');
+        fotoPreview.style.display = 'none';
+        fotoPreview.classList.remove('loading');
     });
 });
 </script>
