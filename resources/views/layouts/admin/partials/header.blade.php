@@ -21,7 +21,7 @@
         <!--end::Aside mobile toggle-->
         <!--begin::Mobile logo-->
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
-            <a href="javascript:void(0)" class="d-lg-none ms-3">
+            <a href="{{ route('dashboard') }}" class="d-lg-none ms-3">
                 <img alt="Logo" src="{{asset('')}}assets/img/logotsi.png" class="h-30px" />
             </a>
         </div>

@@ -402,99 +402,273 @@
     let isProcessing = false;
     let videoReady = false;
 
-    function bukaKameraPopup(judulAbsen, urlAbsen) {
-        if (isProcessing) return;
-        isProcessing = true;
-        videoReady = false;
+function bukaKameraPopup(judulAbsen, urlAbsen) {
+    if (isProcessing) return;
+    isProcessing = true;
+    videoReady = false;
 
-        Swal.fire({
-            title: judulAbsen,
-            html: `
-                <div class="text-center">
-                    <div id="loadingCamera" style="padding: 60px 0;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">Membuka kamera...</p>
-                    </div>
-                    <video id="cameraPopup" autoplay playsinline 
-                        style="border-radius: 12px; display: none; width: 100%; max-width: 320px; height: auto;">
-                    </video>
-                    <canvas id="canvasPopup" width="320" height="240" class="d-none"></canvas>
-                    <p class="mt-3 mb-0" id="cameraInstruction" style="display: none;">
-                        📸 Pastikan wajah Anda terlihat jelas
-                    </p>
-                </div>
-            `,
-            showCancelButton: true,
-            showConfirmButton: true,
-            confirmButtonText: '📸 Ambil Foto & Kirim',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#ef4444',
-            allowOutsideClick: false,
-            customClass: {
-                popup: 'rounded-4',
-                confirmButton: 'rounded-3',
-                cancelButton: 'rounded-3'
-            },
-            didOpen: () => {
-                const videoElement = document.getElementById('cameraPopup');
-                const loadingDiv = document.getElementById('loadingCamera');
-                const instruction = document.getElementById('cameraInstruction');
-                const confirmBtn = Swal.getConfirmButton();
-                confirmBtn.style.display = 'none';
-                confirmBtn.disabled = true;
-
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-                .then(s => {
-                    stream = s;
-                    videoElement.srcObject = s;
-                    videoElement.onplaying = () => {
-                        setTimeout(() => {
-                            videoReady = true;
-                            loadingDiv.style.display = 'none';
-                            videoElement.style.display = 'block';
-                            instruction.style.display = 'block';
-                            confirmBtn.style.display = 'inline-block';
-                            confirmBtn.disabled = false;
-                        }, 300);
-                    };
-                })
-                .catch(err => {
-                    Swal.fire('Gagal', 'Kamera tidak dapat diakses: ' + err.message, 'error');
-                    isProcessing = false;
-                });
-            },
-            preConfirm: () => {
-                if (!videoReady) {
-                    Swal.showValidationMessage('Tunggu hingga kamera siap...');
-                    return false;
-                }
-                
-                const video = document.getElementById('cameraPopup');
-                const canvas = document.getElementById('canvasPopup');
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const fotoData = canvas.toDataURL('image/jpeg', 0.8);
-
-                return fotoData;
-            },
-            willClose: () => {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                    stream = null;
-                }
-                isProcessing = false;
-            }
-        }).then((result) => {
-            if (result.isConfirmed && result.value) {
-                const fotoData = result.value;
-                kirimAbsen(urlAbsen, fotoData);
-            }
-        });
-    }
+    // Deteksi ukuran layar
+    const isMobile = window.innerWidth <= 768;
     
+    if (isMobile) {
+        // Mode Full Screen untuk Mobile
+        bukaKameraFullScreen(judulAbsen, urlAbsen);
+    } else {
+        // Mode Popup untuk Desktop
+        bukaKameraPopupDesktop(judulAbsen, urlAbsen);
+    }
+}
+
+function bukaKameraFullScreen(judulAbsen, urlAbsen) {
+    // Buat overlay full screen
+    const overlay = document.createElement('div');
+    overlay.id = 'cameraOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+    `;
+
+    overlay.innerHTML = `
+        <div style="flex: 0 0 auto; background: rgba(0,0,0,0.8); padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <button id="btnCloseCamera" style="background: transparent; border: none; color: white; font-size: 1.5rem; padding: 0.5rem;">
+                ✕
+            </button>
+            <h3 style="color: white; margin: 0; font-size: 1rem; font-weight: 600;">${judulAbsen}</h3>
+            <div style="width: 2.5rem;"></div>
+        </div>
+        
+        <div id="loadingCameraFull" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+            <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p style="margin-top: 1rem; font-size: 1rem;">Membuka kamera...</p>
+        </div>
+        
+        <div id="videoContainerFull" style="flex: 1; display: none; position: relative; overflow: hidden;">
+            <video id="cameraFullScreen" autoplay playsinline 
+                style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);">
+            </video>
+            <div style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); color: white; text-align: center; background: rgba(0,0,0,0.5); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem;">
+                📸 Pastikan wajah Anda terlihat jelas
+            </div>
+        </div>
+        
+        <div style="flex: 0 0 auto; background: rgba(0,0,0,0.9); padding: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
+            <button id="btnBatalCamera" style="flex: 1; max-width: 150px; padding: 1rem; background: #6b7280; color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem;">
+                Batal
+            </button>
+            <button id="btnAmbilFoto" disabled style="flex: 1; max-width: 150px; padding: 1rem; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem;">
+                📸 Ambil Foto
+            </button>
+        </div>
+        
+        <canvas id="canvasFull" width="640" height="480" style="display: none;"></canvas>
+    `;
+
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    const videoElement = document.getElementById('cameraFullScreen');
+    const loadingDiv = document.getElementById('loadingCameraFull');
+    const videoContainer = document.getElementById('videoContainerFull');
+    const btnAmbil = document.getElementById('btnAmbilFoto');
+    const btnBatal = document.getElementById('btnBatalCamera');
+    const btnClose = document.getElementById('btnCloseCamera');
+
+    // Fungsi untuk menutup kamera
+    function tutupKamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        document.body.removeChild(overlay);
+        document.body.style.overflow = '';
+        isProcessing = false;
+    }
+
+    // Event listeners untuk tombol
+    btnClose.addEventListener('click', tutupKamera);
+    btnBatal.addEventListener('click', tutupKamera);
+
+    btnAmbil.addEventListener('click', () => {
+        if (!videoReady) return;
+
+        const canvas = document.getElementById('canvasFull');
+        const ctx = canvas.getContext('2d');
+        
+        // Flip horizontal untuk mirror effect
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(videoElement, -canvas.width, 0, canvas.width, canvas.height);
+        ctx.restore();
+        
+        const fotoData = canvas.toDataURL('image/jpeg', 0.8);
+        
+        tutupKamera();
+        kirimAbsen(urlAbsen, fotoData);
+    });
+
+    // Buka kamera
+    const constraints = {
+        video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(s => {
+            stream = s;
+            videoElement.srcObject = s;
+            videoElement.onloadedmetadata = () => {
+                videoElement.play();
+            };
+            videoElement.onplaying = () => {
+                setTimeout(() => {
+                    videoReady = true;
+                    loadingDiv.style.display = 'none';
+                    videoContainer.style.display = 'block';
+                    btnAmbil.disabled = false;
+                    btnAmbil.style.opacity = '1';
+                }, 500);
+            };
+        })
+        .catch(err => {
+            tutupKamera();
+            Swal.fire('Gagal', 'Kamera tidak dapat diakses: ' + err.message, 'error');
+        });
+}
+
+function bukaKameraPopupDesktop(judulAbsen, urlAbsen) {
+    Swal.fire({
+        title: judulAbsen,
+        html: `
+            <div class="text-center" style="max-width: 100%; overflow: hidden;">
+                <div id="loadingCamera" style="padding: 20px 0;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2" style="font-size: 0.9rem;">Membuka kamera...</p>
+                </div>
+                <div style="display: none; position: relative; width: 480px; height: 360px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden;" id="videoContainer">
+                    <video id="cameraPopup" autoplay playsinline muted
+                        style="width: 100% !important; height: 100% !important; display: block !important; transform: scaleX(-1) !important; object-fit: cover !important; position: absolute !important; top: 0 !important; left: 0 !important;">
+                    </video>
+                </div>
+                <canvas id="canvasPopup" width="640" height="480" class="d-none"></canvas>
+                <p class="mt-2 mb-0" id="cameraInstruction" style="display: none; font-size: 0.875rem; color: #666;">
+                    📸 Pastikan wajah Anda terlihat jelas
+                </p>
+            </div>
+        `,
+        showCancelButton: true,
+        showConfirmButton: true,
+        confirmButtonText: '📸 Ambil Foto & Kirim',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#ef4444',
+        allowOutsideClick: false,
+        width: '600px',
+        heightAuto: true,
+        customClass: {
+            popup: 'rounded-4',
+            confirmButton: 'rounded-3',
+            cancelButton: 'rounded-3',
+            htmlContainer: 'swal-html-custom'
+        },
+        didOpen: () => {
+            // Override CSS yang mungkin bentrok
+            const swalContainer = document.querySelector('.swal2-html-container');
+            if (swalContainer) {
+                swalContainer.style.overflow = 'visible';
+                swalContainer.style.maxHeight = 'none';
+            }
+
+            const videoElement = document.getElementById('cameraPopup');
+            const videoContainer = document.getElementById('videoContainer');
+            const loadingDiv = document.getElementById('loadingCamera');
+            const instruction = document.getElementById('cameraInstruction');
+            const confirmBtn = Swal.getConfirmButton();
+            confirmBtn.style.display = 'none';
+            confirmBtn.disabled = true;
+
+            const constraints = {
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 640, max: 640 },
+                    height: { ideal: 480, max: 480 }
+                }
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints)
+            .then(s => {
+                stream = s;
+                videoElement.srcObject = s;
+                
+                // Force override semua style yang mungkin bentrok
+                videoElement.removeAttribute('class');
+                videoElement.style.cssText = 'width: 100% !important; height: 100% !important; display: block !important; transform: scaleX(-1) !important; object-fit: cover !important; position: absolute !important; top: 0 !important; left: 0 !important; max-width: none !important; max-height: none !important;';
+                
+                videoElement.onloadedmetadata = () => {
+                    videoElement.play();
+                };
+                videoElement.onplaying = () => {
+                    setTimeout(() => {
+                        videoReady = true;
+                        loadingDiv.style.display = 'none';
+                        videoContainer.style.display = 'block';
+                        instruction.style.display = 'block';
+                        confirmBtn.style.display = 'inline-block';
+                        confirmBtn.disabled = false;
+                    }, 300);
+                };
+            })
+            .catch(err => {
+                Swal.fire('Gagal', 'Kamera tidak dapat diakses: ' + err.message, 'error');
+                isProcessing = false;
+            });
+        },
+        preConfirm: () => {
+            if (!videoReady) {
+                Swal.showValidationMessage('Tunggu hingga kamera siap...');
+                return false;
+            }
+            
+            const video = document.getElementById('cameraPopup');
+            const canvas = document.getElementById('canvasPopup');
+            const ctx = canvas.getContext('2d');
+            
+            // Flip horizontal untuk mirror effect
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+            ctx.restore();
+            
+            const fotoData = canvas.toDataURL('image/jpeg', 0.8);
+            return fotoData;
+        },
+        willClose: () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            isProcessing = false;
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            const fotoData = result.value;
+            kirimAbsen(urlAbsen, fotoData);
+        }
+    });
+}
     async function kirimAbsen(url, fotoData = null) {
         if (!navigator.geolocation) {
             Swal.fire('Error', 'Browser Anda tidak mendukung geolocation.', 'error');
@@ -538,15 +712,28 @@
 
             Swal.fire({
                 icon: data.status === 'success' ? 'success' : 'error',
-                title: data.status === 'success' ? '✓ Berhasil!' : '✗ Gagal!',
+                title: data.status === 'success' ? 'Berhasil!' : 'Gagal!',
                 text: data.message,
-                confirmButtonColor: data.status === 'success' ? '#10b981' : '#ef4444',
-                showConfirmButton: true,
+
+                showConfirmButton: data.status !== 'success',
+                confirmButtonText: 'OK',
+
                 timer: data.status === 'success' ? 2000 : undefined,
-                timerProgressBar: true
+                timerProgressBar: true,
+
+                customClass: {
+                    confirmButton: data.status === 'success'
+                        ? 'btn btn-primary'
+                        : 'btn btn-danger'
+                },
+
+                buttonsStyling: false
             }).then(() => {
-                if (data.status === 'success') location.reload();
-            });
+                if (data.status === 'success') {
+                    location.reload();
+                }
+        });
+
 
         } catch (error) {
             Swal.close();
@@ -578,18 +765,30 @@
             if (Swal.isVisible()) Swal.close();
             await new Promise(r => setTimeout(r, 100));
 
-            Swal.fire({
-                icon: data.status === 'success' ? 'success' : 'error',
-                title: data.status === 'success' ? '✓ Berhasil!' : '✗ Gagal!',
-                text: data.message,
-                confirmButtonColor: data.status === 'success' ? '#10b981' : '#ef4444',
-                showConfirmButton: true,
-                timer: data.status === 'success' ? 2000 : undefined,
-                timerProgressBar: true,
-                didClose: () => {
-                    if (data.status === 'success') location.reload();
-                }
-            });
+           Swal.fire({
+    icon: data.status === 'success' ? 'success' : 'error',
+    title: data.status === 'success' ? 'Berhasil!' : 'Gagal!',
+    text: data.message,
+
+    showConfirmButton: data.status !== 'success',
+    confirmButtonText: 'OK',
+
+    timer: data.status === 'success' ? 2000 : undefined,
+    timerProgressBar: true,
+
+    customClass: {
+        confirmButton: data.status === 'success'
+            ? 'btn btn-primary'
+            : 'btn btn-danger'
+    },
+
+    buttonsStyling: false
+}).then(() => {
+    if (data.status === 'success') {
+        location.reload();
+    }
+});
+
         } catch (error) {
             if (Swal.isVisible()) Swal.close();
             Swal.fire('Error', 'Terjadi kesalahan saat mengirim data: ' + error.message, 'error');

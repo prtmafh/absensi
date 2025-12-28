@@ -167,14 +167,24 @@
                                     {{-- <label class="fs-6 fw-bold mb-2">Foto</label> --}}
 
                                     <div id="foto_preview" class="mt-3 text-center" style="display:none;">
-                                        <img src="" alt="Foto Karyawan" class="rounded shadow-sm" style="
-                                                width: 100%;
-                                                max-width: 350px;
+                                        <div style="
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        max-height: 70vh;
+                                        overflow: hidden;
+                                    ">
+                                            <img src="" alt="Foto Absen" style="
+                                                max-width: 100%;
+                                                max-height: 70vh;
+                                                width: auto;
                                                 height: auto;
+                                                object-fit: contain;
                                                 border-radius: 10px;
-                                                object-fit: cover;
                                                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                                             ">
+                                                background-color: #f3f4f6;
+                                            ">
+                                        </div>
                                     </div>
                                 </div>
 
