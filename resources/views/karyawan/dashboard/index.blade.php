@@ -407,20 +407,16 @@ function bukaKameraPopup(judulAbsen, urlAbsen) {
     isProcessing = true;
     videoReady = false;
 
-    // Deteksi ukuran layar
     const isMobile = window.innerWidth <= 768;
     
     if (isMobile) {
-        // Mode Full Screen untuk Mobile
         bukaKameraFullScreen(judulAbsen, urlAbsen);
     } else {
-        // Mode Popup untuk Desktop
         bukaKameraPopupDesktop(judulAbsen, urlAbsen);
     }
 }
 
 function bukaKameraFullScreen(judulAbsen, urlAbsen) {
-    // Buat overlay full screen
     const overlay = document.createElement('div');
     overlay.id = 'cameraOverlay';
     overlay.style.cssText = `
@@ -469,7 +465,7 @@ function bukaKameraFullScreen(judulAbsen, urlAbsen) {
             </button>
         </div>
         
-        <canvas id="canvasFull" width="640" height="480" style="display: none;"></canvas>
+        <canvas id="canvasFull" style="display: none;"></canvas>
     `;
 
     document.body.appendChild(overlay);
@@ -482,7 +478,6 @@ function bukaKameraFullScreen(judulAbsen, urlAbsen) {
     const btnBatal = document.getElementById('btnBatalCamera');
     const btnClose = document.getElementById('btnCloseCamera');
 
-    // Fungsi untuk menutup kamera
     function tutupKamera() {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
@@ -493,7 +488,6 @@ function bukaKameraFullScreen(judulAbsen, urlAbsen) {
         isProcessing = false;
     }
 
-    // Event listeners untuk tombol
     btnClose.addEventListener('click', tutupKamera);
     btnBatal.addEventListener('click', tutupKamera);
 
@@ -502,6 +496,10 @@ function bukaKameraFullScreen(judulAbsen, urlAbsen) {
 
         const canvas = document.getElementById('canvasFull');
         const ctx = canvas.getContext('2d');
+        
+        // Set canvas size to match video dimensions
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
         
         // Flip horizontal untuk mirror effect
         ctx.save();
@@ -515,7 +513,6 @@ function bukaKameraFullScreen(judulAbsen, urlAbsen) {
         kirimAbsen(urlAbsen, fotoData);
     });
 
-    // Buka kamera
     const constraints = {
         video: {
             facingMode: 'user',
@@ -563,7 +560,7 @@ function bukaKameraPopupDesktop(judulAbsen, urlAbsen) {
                         style="width: 100% !important; height: 100% !important; display: block !important; transform: scaleX(-1) !important; object-fit: cover !important; position: absolute !important; top: 0 !important; left: 0 !important;">
                     </video>
                 </div>
-                <canvas id="canvasPopup" width="640" height="480" class="d-none"></canvas>
+                <canvas id="canvasPopup" class="d-none"></canvas>
                 <p class="mt-2 mb-0" id="cameraInstruction" style="display: none; font-size: 0.875rem; color: #666;">
                     📸 Pastikan wajah Anda terlihat jelas
                 </p>
@@ -585,7 +582,6 @@ function bukaKameraPopupDesktop(judulAbsen, urlAbsen) {
             htmlContainer: 'swal-html-custom'
         },
         didOpen: () => {
-            // Override CSS yang mungkin bentrok
             const swalContainer = document.querySelector('.swal2-html-container');
             if (swalContainer) {
                 swalContainer.style.overflow = 'visible';
@@ -613,7 +609,6 @@ function bukaKameraPopupDesktop(judulAbsen, urlAbsen) {
                 stream = s;
                 videoElement.srcObject = s;
                 
-                // Force override semua style yang mungkin bentrok
                 videoElement.removeAttribute('class');
                 videoElement.style.cssText = 'width: 100% !important; height: 100% !important; display: block !important; transform: scaleX(-1) !important; object-fit: cover !important; position: absolute !important; top: 0 !important; left: 0 !important; max-width: none !important; max-height: none !important;';
                 
@@ -646,6 +641,10 @@ function bukaKameraPopupDesktop(judulAbsen, urlAbsen) {
             const canvas = document.getElementById('canvasPopup');
             const ctx = canvas.getContext('2d');
             
+            // Set canvas size to match video dimensions
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
             // Flip horizontal untuk mirror effect
             ctx.save();
             ctx.scale(-1, 1);
@@ -669,7 +668,8 @@ function bukaKameraPopupDesktop(judulAbsen, urlAbsen) {
         }
     });
 }
-    async function kirimAbsen(url, fotoData = null) {
+  
+  async function kirimAbsen(url, fotoData = null) {
         if (!navigator.geolocation) {
             Swal.fire('Error', 'Browser Anda tidak mendukung geolocation.', 'error');
             return;
