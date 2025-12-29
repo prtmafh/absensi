@@ -28,6 +28,9 @@ License: For each use you must have a valid license purchased only from above li
         content="Metronic - Bootstrap 5 HTML, VueJS, React, Angular &amp; Laravel Admin Dashboard Theme" />
     <meta property="og:url" content="https://keenthemes.com/metronic" />
     <meta property="og:site_name" content="Keenthemes | Metronic" />
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="/manifest.json">
     <link rel="canonical" href="https://preview.keenthemes.com/metronic8" />
     <link rel="shortcut icon" href="{{asset('')}}assets/img/logotsi.png" />
     <!--begin::Fonts-->
@@ -190,6 +193,11 @@ License: For each use you must have a valid license purchased only from above li
     </script>
 
     @stack('scripts')
+    <script>
+        if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+    </script>
     <!--end::Javascript-->
 </body>
 <!--end::Body-->
